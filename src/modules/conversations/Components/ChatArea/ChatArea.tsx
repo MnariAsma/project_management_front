@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import type { Conversation, ConversationMessage } from "../../types/conversationTypes";
 import type { Project } from "../../../projects/types/projectTypes";
 import ChatMessage from "../ChatMessage/ChatMessage";
@@ -27,12 +27,36 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
   onToggleMobileSidebar,
 }) => {
   const [input, setInput] = useState("");
+  const [optimisticMessage, setOptimisticMessage] = useState<ConversationMessage | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Clear optimistic message once the request completes or server messages update
+  useEffect(() => {
+    if (!isSending) {
+      setOptimisticMessage(null);
+    }
+  }, [isSending, messages]);
+
+  // Combine real server messages with optimistic message for instant display
+  const displayedMessages: ConversationMessage[] = useMemo(() => {
+    if (!optimisticMessage) return messages;
+
+    const exists = messages.some(
+      (m) =>
+        m.role === "user" &&
+        m.content.trim() === optimisticMessage.content.trim()
+    );
+
+    if (exists) return messages;
+    return [...messages, optimisticMessage];
+  }, [messages, optimisticMessage]);
+
+  // Auto scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isSending]);
+  }, [displayedMessages, isSending]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     if (textareaRef.current) {
@@ -43,21 +67,39 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       )}px`;
     }
   };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
     }
   };
+
   const handleSubmit = () => {
     const trimmed = input.trim();
     if (!trimmed || isSending) return;
-    onSendMessage(trimmed);
+
+    // 1. Immediately show user question on screen
+    const tempUserMsg: ConversationMessage = {
+      id: `temp-${Date.now()}`,
+      conversation_id: conversation?.id || "",
+      role: "user",
+      content: trimmed,
+      created_at: new Date().toISOString(),
+    };
+    setOptimisticMessage(tempUserMsg);
+
+    // 2. Clear input
     setInput("");
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
+
+    // 3. Send question to backend RAG
+    onSendMessage(trimmed);
   };
+
+  const showWelcome = !isLoadingMessages && displayedMessages.length === 0;
 
   return (
     <div className="chat-main-area">
@@ -100,13 +142,15 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
           </div>
         )}
       </header>
+
+      {/* Messages Viewport */}
       <div className="chat-messages-viewport">
-        {isLoadingMessages ? (
+        {isLoadingMessages && displayedMessages.length === 0 ? (
           <div className="chat-viewport-loading">
             <div className="chat-loading-spinner" />
             <p>Loading messages...</p>
           </div>
-        ) : messages.length === 0 ? (
+        ) : showWelcome ? (
           <div className="chat-welcome-state">
             <div className="chat-welcome-hero">
               <div className="chat-welcome-icon">
@@ -126,7 +170,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
           </div>
         ) : (
           <div className="chat-messages-list">
-            {messages.map((msg) => (
+            {displayedMessages.map((msg) => (
               <ChatMessage
                 key={msg.id}
                 message={msg}
@@ -135,6 +179,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               />
             ))}
 
+            {/* Thinking / Processing indicator below the user message */}
             {isSending && (
               <div className="chat-message-row assistant-row">
                 <div className="chat-message-container">
@@ -172,6 +217,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
         )}
       </div>
 
+      {/* Floating Input Dock */}
       <div className="chat-input-dock">
         <div className="chat-input-wrapper">
           <textarea
@@ -179,7 +225,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
             className="chat-textarea"
             placeholder={
               project
-                ? `Ask anything about ${project.name}... (Enter to send, Shift+Enter for newline)`
+                ? `Ask anything about ${project.name}...`
                 : "Select a project to start chatting..."
             }
             value={input}
@@ -209,8 +255,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
 
         <div className="chat-input-footer">
           <span>
-            RAG Assistant answers using indexed project code. Always verify critical implementation
-            details.
+            RAG Assistant answers using indexed project code. Always verify critical implementation details.
           </span>
         </div>
       </div>
