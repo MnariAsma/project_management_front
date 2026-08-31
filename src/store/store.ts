@@ -6,6 +6,8 @@ import toastReducer from "../slices/toast/toastSlice";
 import { projectApi } from "../modules/projects/Apis/projectApi";
 import { githubApi } from "../modules/github/Apis/githubApi";
 
+import { conversationApi } from "../modules/conversations/Apis/conversationApi";
+
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -13,15 +15,14 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [projectApi.reducerPath]: projectApi.reducer,
     [githubApi.reducerPath]: githubApi.reducer,
-
-
+    [conversationApi.reducerPath]: conversationApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(authApi.middleware)
       .concat(projectApi.middleware)
-      .concat(githubApi.middleware),
-
+      .concat(githubApi.middleware)
+      .concat(conversationApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

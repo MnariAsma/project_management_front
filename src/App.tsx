@@ -1,10 +1,11 @@
 import { Routes, Route } from "react-router-dom";
-import { LOGIN, DASHBOARD, AUTH_CALLBACK, PROJECTS, NOTFOUND } from "./routes/routes";
+import { LOGIN, DASHBOARD, AUTH_CALLBACK, PROJECTS, CONVERSATIONS, NOTFOUND } from "./routes/routes";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import AuthCallbackPage from "./pages/AuthCallbackPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProjectsPage from "./pages/ProjectsPage";
+import ConversationsPage from "./pages/ConversationsPage";
 import AppLayout from "./components/Layout/AppLayout";
 import ToastContainer from "./components/Toast/ToastContainer";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -21,6 +22,7 @@ function App() {
           <Route element={<AppLayout />}>
             <Route path={DASHBOARD} element={<DashboardPage />} />
             <Route path={PROJECTS} element={<ProjectsPage />} />
+            <Route path={CONVERSATIONS} element={<ConversationsPage />} />
           </Route>
         </Route>
 
