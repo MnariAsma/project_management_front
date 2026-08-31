@@ -30,7 +30,13 @@ export const useAuth = () => {
   };
 
   const handleLogout = async () => {
-    dispatch(clearCredentials());
+    try {
+      await logoutApi().unwrap();
+    } catch {
+      // ignore logout api failure if token expired
+    } finally {
+      dispatch(clearCredentials());
+    }
   };
 
   return {

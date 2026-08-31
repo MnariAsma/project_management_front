@@ -5,3 +5,4 @@ export const AUTH = "/auth";
 export const AUTH_CALLBACK = "/auth/callback";
 export const NOTFOUND = "*";
 export const PROJECTS = "/projects";
+export const CONVERSATIONS = "/conversations";

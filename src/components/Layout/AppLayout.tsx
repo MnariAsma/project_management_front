@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../../modules/auth/hooks/useAuth";
-import { DASHBOARD, PROJECTS } from "../../routes/routes";
+import { DASHBOARD, PROJECTS, CONVERSATIONS } from "../../routes/routes";
 
 export default function AppLayout() {
   const { user, handleLogout, isLoggingOut } = useAuth();
@@ -57,6 +57,26 @@ export default function AppLayout() {
               <path d="M3 7h18M3 12h18M3 17h18" />
             </svg>
             Projects
+          </NavLink>
+
+          <NavLink
+            to={CONVERSATIONS}
+            className={({ isActive }) =>
+              `nav-item ${isActive ? "active" : ""}`
+            }
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              <circle cx="9" cy="10" r="1" fill="currentColor" />
+              <circle cx="12" cy="10" r="1" fill="currentColor" />
+              <circle cx="15" cy="10" r="1" fill="currentColor" />
+            </svg>
+            AI Assistant
           </NavLink>
         </nav>
 

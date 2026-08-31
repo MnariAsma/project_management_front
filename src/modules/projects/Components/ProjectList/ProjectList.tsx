@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useGetProjectsQuery } from "../../Apis/projectApi";
 import CreateProjectModal from "../CreateProject/CreateProjectModal";
+import { CONVERSATIONS } from "../../../../routes/routes";
 
 export default function ProjectListComponent() {
+  const navigate = useNavigate();
   const { data, isLoading, error } = useGetProjectsQuery();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const projects = data?.projects || [];
@@ -211,6 +214,7 @@ export default function ProjectListComponent() {
                     display: "flex",
                     flexWrap: "wrap",
                     gap: "6px",
+                    marginBottom: "12px",
                   }}
                 >
                   {project.repositories.map((repo) => (
@@ -243,10 +247,41 @@ export default function ProjectListComponent() {
                   ))}
                 </div>
               ) : (
-                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "12px" }}>
                   No repositories attached
-                </span>
+                </div>
               )}
+
+              <button
+                type="button"
+                onClick={() => navigate(`${CONVERSATIONS}?projectId=${project.id}`)}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "9px 14px",
+                  background: "rgba(108, 99, 255, 0.12)",
+                  border: "1px solid rgba(108, 99, 255, 0.25)",
+                  borderRadius: "var(--radius-sm)",
+                  color: "var(--accent)",
+                  fontWeight: 600,
+                  fontSize: "13px",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  style={{ width: "15px", height: "15px" }}
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                Chat with Assistant
+              </button>
             </div>
           </div>
         ))}

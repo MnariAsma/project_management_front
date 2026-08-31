@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../auth/hooks/useAuth";
 import { useGetProjectsQuery } from "../../../projects/Apis/projectApi";
 import { useGetGithubRepositoriesQuery } from "../../../github/Apis/githubApi";
-import { PROJECTS } from "../../../../routes/routes";
+import { PROJECTS, CONVERSATIONS } from "../../../../routes/routes";
 
 export default function DashboardComponent() {
   const { user } = useAuth();
@@ -54,6 +54,32 @@ export default function DashboardComponent() {
           <div>
             <p className="stat-label">GitHub Repositories</p>
             <p className="stat-value">{totalRepos}</p>
+          </div>
+        </div>
+
+        <div
+          className="stat-card"
+          style={{ cursor: "pointer" }}
+          onClick={() => navigate(CONVERSATIONS)}
+        >
+          <div
+            className="stat-icon"
+            style={{ background: "rgba(108, 99, 255, 0.15)", color: "var(--accent)" }}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          </div>
+          <div>
+            <p className="stat-label">RAG Assistant</p>
+            <p className="stat-value" style={{ color: "var(--accent)", fontSize: "16px" }}>
+              Ask Questions →
+            </p>
           </div>
         </div>
 
